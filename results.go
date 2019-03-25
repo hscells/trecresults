@@ -1,13 +1,13 @@
-// Package trecresults provides helper functions for reading and writing trec results files
+// package trecresults provides helper functions for reading and writing trec results files
 // suitable for using with treceval.
 //
 // It has three main concepts:
 //
-// ResultFile: Contains a map of results for all topics contained in this results file
+// ResultFile: Contains a map of results for all topics contained in this results file.
 //
-// ResultList: A slice containing the results for this topic
+// ResultList: A slice containing the results for this topic.
 //
-// Result: The data that describes a single entry in a result list
+// Result: The data that describes a single entry in a result list.
 package trecresults
 
 import (
@@ -20,36 +20,36 @@ import (
 	"strings"
 )
 
-// The result file contains a map of all the result lists, indexed by topic ID.
+// ResultFile contains a map of all the result lists, indexed by topic ID.
 type ResultFile struct {
 	Results map[string]ResultList
 }
 
 // ResultList contains a slice of pointers to results for a single topic.
 //
-// ResultList impliments sort.Interface, allowing it to be sorted by score
-// if the score is modified. The swap implementation also updates the rank scored
+// ResultList impliments sort.Interface, allowing it to be sorted by score.
+// If the score is modified. The swap implementation also updates the rank scored
 // by each result.
 type ResultList []*Result
 
-// Describes a single entry in a trec result list.
+// Result is a single entry in a trec result list.
 //
 // Implements the fmt.Stringer interface, allowing results to be printed.
 type Result struct {
-	Topic     string  // the integer topic ID
-	Iteration string  // the iteration this run is associated with (ignored by treceval)
-	DocId     string  // the document ID for this result
-	Rank      int64   // the rank in the result list
-	Score     float64 // the score the document received for this topic
-	RunName   string  // the name of the run this result is from
+	Topic     string  // The integer topic ID.
+	Iteration string  // The iteration this run is associated with (ignored by treceval).
+	DocId     string  // The document ID for this result.
+	Rank      int64   // The rank in the result list.
+	Score     float64 // The score the document received for this topic.
+	RunName   string  // The name of the run this result is from.
 }
 
-// Constructor for a ResultFile pointer
+// NewResultFile is the constructor for a ResultFile pointer.
 func NewResultFile() *ResultFile {
 	return &ResultFile{make(map[string]ResultList)}
 }
 
-// Length method for sort.Interface
+// Len method for sort.Interface.
 func (r ResultList) Len() int { return len(r) }
 
 // Swap method for sort.Interface. Also updates the ranks of the results correctly.
@@ -69,7 +69,7 @@ func (r *Result) String() string {
 	return fmt.Sprintf("%s %s %s %d %g %s", r.Topic, r.Iteration, r.DocId, r.Rank, r.Score, r.RunName)
 }
 
-// Creates a result structure from a single line from a results file.
+// ResultFromLine creates a result structure from a single line from a results file.
 //
 // Returns parsing errors if any of the integer or float fields do not parse.
 //
@@ -102,7 +102,7 @@ func ResultFromLine(line string) (*Result, error) {
 	return &Result{topic, iteration, docId, rank, score, runname}, nil
 }
 
-// This function returns a ResultsFile object created from the
+// ResultsFromReader returns a ResultsFile object created from the
 // provided reader (eg a file).
 //
 // On errors, a ResultFile containing every Result and ResultList read before the error was encountered is
@@ -132,7 +132,7 @@ func ResultsFromReader(file io.Reader) (ResultFile, error) {
 	return rf, nil
 }
 
-// This function renames all results in this list. Useful for giving a run a new name
+// RenameRun renames all results in this list. Useful for giving a run a new name
 // after manipulation.
 func (r ResultList) RenameRun(newName string) {
 	for _, res := range r {
@@ -140,7 +140,7 @@ func (r ResultList) RenameRun(newName string) {
 	}
 }
 
-// This function sorts all result lists in this result file. Call this before printing if you
+// Sort sorts all result lists in this result file. Call this before printing if you
 // have modified the scores.
 func (r ResultFile) Sort() {
 	for _, list := range r.Results {
@@ -148,29 +148,29 @@ func (r ResultFile) Sort() {
 	}
 }
 
-// This function renames the runs of all result lists in this result file.
+// RenameRun renames the runs of all result lists in this result file.
 //
-// It calls RenameRun(newName) on each ResultList in this ResultFile
+// It calls RenameRun(newName) on each ResultList in this ResultFile.
 func (r ResultFile) RenameRun(newName string) {
 	for _, list := range r.Results {
 		list.RenameRun(newName)
 	}
 }
 
-// This function normalises the runs of all result lists in this result file.
+// NormaliseLinear normalises the runs of all result lists in this result file.
 //
-// It calls NormaliseLinear() on each ResultList in this ResultFile
+// It calls NormaliseLinear() on each ResultList in this ResultFile.
 func (r ResultFile) NormaliseLinear() {
 	for _, list := range r.Results {
 		list.NormaliseLinear()
 	}
 }
 
-// This function operates on a slice of results, and normalises the score
+// NormaliseLinear operates on a slice of results, and normalises the score
 // of each result by score (score - min)/(max - min). This puts scores
 // in to the range 0-1, where 1 is the highest score, and 0 is the lowest.
 //
-// No assumptions are made as to whether the slice is pre sorted
+// No assumptions are made as to whether the slice is pre-sorted.
 func (r ResultList) NormaliseLinear() {
 	if len(r) == 0 {
 		return

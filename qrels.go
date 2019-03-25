@@ -15,18 +15,18 @@ type QrelsFile struct {
 	Qrels map[string]Qrels
 }
 
-// Qrels is a map of docids to relevance value
+// Qrels is a map of docids to relevance value.
 type Qrels map[string]*Qrel
 
 // Qrel is a single line in a qrels file.
 type Qrel struct {
-	Topic     string // The topic that this qrel is associated with
-	Iteration string // Ignored by treceval
-	DocId     string // the docid
-	Score     int64  // the relevance score for this document
+	Topic     string // The topic that this qrel is associated with.
+	Iteration string // Ignored by treceval.
+	DocId     string // The docid.
+	Score     int64  // The relevance score for this document.
 }
 
-// NewQrelsFile is the constructor for a QrelsFile pointer
+// NewQrelsFile is the constructor for a QrelsFile pointer.
 func NewQrelsFile() *QrelsFile {
 	return &QrelsFile{make(map[string]Qrels)}
 }
