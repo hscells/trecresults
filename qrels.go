@@ -2,13 +2,15 @@ package trecresults
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
 )
 
-// The result file contains a map of all qrels lists, indexed by topic ID.
+// QrelsFile contains a map of all qrels lists, indexed by topic ID.
 type QrelsFile struct {
 	Qrels map[string]Qrels
 }
@@ -16,6 +18,7 @@ type QrelsFile struct {
 // Qrels is a map of docids to relevance value
 type Qrels map[string]*Qrel
 
+// Qrel is a single line in a qrels file.
 type Qrel struct {
 	Topic     string // The topic that this qrel is associated with
 	Iteration string // Ignored by treceval
@@ -23,12 +26,12 @@ type Qrel struct {
 	Score     int64  // the relevance score for this document
 }
 
-// Constructor for a QrelsFile pointer
+// NewQrelsFile is the constructor for a QrelsFile pointer
 func NewQrelsFile() *QrelsFile {
 	return &QrelsFile{make(map[string]Qrels)}
 }
 
-// Creates a qrel structure from a single line from a results file.
+// QrelFromLine Creates a qrel structure from a single line from a results file.
 //
 // Returns parsing errors if any of the integer or float fields do not parse.
 //
@@ -54,7 +57,7 @@ func QrelFromLine(line string) (*Qrel, error) {
 	return &Qrel{topic, iteration, docId, score}, nil
 }
 
-// This function returns a QrelsFile object created from the
+// QrelsFromReader returns a QrelsFile object created from the
 // provided reader (eg a file).
 //
 // On errors, a QrelsFile containing all qrels read before the error was encountered is
@@ -81,4 +84,13 @@ func QrelsFromReader(file io.Reader) (QrelsFile, error) {
 		return qf, err
 	}
 	return qf, nil
+}
+
+// Marshal is a method for obtaining a string representation of qrels.
+func (q Qrels) Marshal() ([]byte, error) {
+	buff := bytes.Buffer{}
+	for _, qrel := range q {
+		buff.WriteString(fmt.Sprintf("%s %s %s %d\n", qrel.Topic, qrel.Iteration, qrel.DocId, qrel.Score))
+	}
+	return buff.Bytes(), nil
 }
