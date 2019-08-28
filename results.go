@@ -12,6 +12,7 @@ package trecresults
 
 import (
 	"bufio"
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -42,6 +43,14 @@ type Result struct {
 	Rank      int64   // The rank in the result list.
 	Score     float64 // The score the document received for this topic.
 	RunName   string  // The name of the run this result is from.
+}
+
+func (r ResultList) Marshal() ([]byte, error) {
+	buff := bytes.Buffer{}
+	for _, result := range r {
+		buff.WriteString(result.String() + "\n")
+	}
+	return buff.Bytes(), nil
 }
 
 // NewResultFile is the constructor for a ResultFile pointer.
