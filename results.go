@@ -75,6 +75,9 @@ func (r ResultList) Less(i, j int) bool {
 
 // String method for fmt.Stringer. Formats a result structure into the original string representation that can be used with treceval.
 func (r *Result) String() string {
+	if len(r.Iteration) == 0 {
+		r.Iteration = "0"
+	}
 	return fmt.Sprintf("%s %s %s %d %g %s", r.Topic, r.Iteration, r.DocId, r.Rank, r.Score, r.RunName)
 }
 
